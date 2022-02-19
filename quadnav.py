@@ -13,3 +13,20 @@
 #####################################################################
 
 
+
+## Global Defs
+# Initial Conditions
+lat_x = 29.401325   # (-) West -> (+) East X axis
+long_y = -81.177222 # (-) South -> (+) North Y axis
+init_x_vel = -0.2 # m/s
+init_y_vel = 0.44 # m/s
+
+# Accelerometer excel sheet
+path = ("quad_accel.xlsx")
+wb = openpyxl.load_workbook(path)
+sheet = wb.active
+max_col = sheet.max_column
+
+for i in range(1, max_col +1):
+    cell = sheet.cell(row = 1, column = i)
+    print(cell.value)
