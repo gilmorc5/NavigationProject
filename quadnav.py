@@ -12,6 +12,7 @@
 
 #####################################################################
 
+import openpyxl
 
 
 ## Global Defs
@@ -25,8 +26,45 @@ init_y_vel = 0.44 # m/s
 path = ("quad_accel.xlsx")
 wb = openpyxl.load_workbook(path)
 sheet = wb.active
-max_col = sheet.max_column
 
-for i in range(1, max_col +1):
+# Find max rows & columns
+max_col = sheet.max_column
+max_row = sheet.max_row
+
+# initialize a 2D array to hold the values of the excel sheet
+
+# Read Time
+
+time = sheet.cell(row = 2, column = 1).value
+Xaccel_cm = sheet.cell(row = 2, column = 2).value
+Yaccel_cm = sheet.cell(row = 2, column = 3).value
+
+print(time)
+print(Xaccel_cm)
+print(Yaccel_cm)
+
+# X cm to meters
+def cm_to_m(accel_cm):
+    return(accel_cm/100)
+
+Xaccel_m = cm_to_m(Xaccel_cm)
+Yaccel_m = cm_to_m(Yaccel_cm)
+
+# Meters to Coordinates
+
+for i in range(1, max_col+1):
     cell = sheet.cell(row = 1, column = i)
-    print(cell.value)
+    #print(cell.value)
+
+# Displacement from acceleration formula
+# Sending initial Velocity & acceleration & time
+def accToDist_X(time, accel, init_x_vel):
+    return(init_x_vel * time + 0.5 * accel * pow(time, 2))
+
+print()
+print(accToDist_X(time, Xaccel_m, init_x_vel))
+
+
+
+
+
