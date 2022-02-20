@@ -14,9 +14,10 @@
 
 #####################################################################
 
-import openpyxl
 from array import *
 from math import *
+import shelve
+import openpyxl
 
 ## Global Defs
 # Initial Conditions
@@ -26,6 +27,8 @@ R = 6378137 # Earth's Radius (meters)
 init_x_vel = -0.2 # m/s
 init_y_vel = 0.44 # m/s
 time = 0
+Xaccel_m = 0
+Yaccel_m = 0
 
 # Delcare location(path) to excel file > Workbook > Specific Sheet in WB
 path = ("quad_accel.xlsx")
@@ -55,21 +58,20 @@ def findLat(lat, Xdisp_m):
 
 # for-in loop to read through the excel data sheet and make calculations
 # Read cell value -> convert cm to m -> calculate displacement from acceleration -> put into array
-for i in range(1, max_row+1):
+for i in range(1, max_row):    
     time+=0.1
+
     # Convert X acceleration (cm/s^2 > m/s^2) to displacement and put in 1D array
     # Displacement from acceleration formula
     # displ = (Vi)(t) + 1/2(accel)(t^2)
-    # Sending initial Velocity, acceleration, time
-    Xaccel_m = (sheet.cell(row=i+1, column=2).value)
-    Xdisp_m = (init_x_vel * time) + (0.5 * Xaccel_m * (time ** 2))
-    Xlat_array = [findLat(lat, Xdisp_m) for i in range(max_row)]
+    Xdisp_m = (init_x_vel * time) + (0.5 * (sheet.cell(row=i+1, column=2).value * 0.01) * (time ** 2))
+    Xlat = findLat(lat, Xdisp_m)
+    print("X: ", Xlat)
     
     # Convert Y acceleration (cm/s^2 > m/s^2) to displacement and put in 1D array
-    Yaccel_m = (sheet.cell(row=i+1, column=3).value)
-    Ydisp_m = (init_y_vel * time) + (0.5 * Yaccel_m * (time ** 2))
-    Ylong_array = [findLong(long, Ydisp_m) for i in range(max_row)]
-
+    Ydisp_m = (init_y_vel * time) + (0.5 * (sheet.cell(row=i+1, column=3).value * 0.01) * (time ** 2))
+    Ylong = findLong(long, Ydisp_m)
+    print("Y: ", Ylong)
 
 
 
