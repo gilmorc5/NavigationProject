@@ -16,8 +16,11 @@
 
 from array import *
 from math import *
-import shelve
 import openpyxl
+import kivy
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 ## Global Defs
 # Initial Conditions
@@ -66,13 +69,14 @@ for i in range(1, max_row):
     # displ = (Vi)(t) + 1/2(accel)(t^2)
     Xdisp_m = (init_x_vel * time) + (0.5 * (sheet.cell(row=i+1, column=2).value * 0.01) * (time ** 2))
     Xlat = findLat(lat, Xdisp_m)
-    print("X: ", Xlat)
     
     # Convert Y acceleration (cm/s^2 > m/s^2) to displacement and put in 1D array
     Ydisp_m = (init_y_vel * time) + (0.5 * (sheet.cell(row=i+1, column=3).value * 0.01) * (time ** 2))
     Ylong = findLong(long, Ydisp_m)
-    print("Y: ", Ylong)
 
+x = np.linspace(0, 2 * np.pi, 200)
+y = np.sin(x)
 
-
-
+fig, ax = plt.subplots()
+ax.plot(x,y)
+plt.show()
