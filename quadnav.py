@@ -16,20 +16,19 @@
 
 from array import *
 from math import *
+import random
+from turtle import pd
 import openpyxl
-import kivy
-import matplotlib.pyplot as plt
-import numpy as np
-
+from kivy.garden.mapview import MapView, MapMarker
+from kivy.app import App
 
 ## Global Defs
 # Initial Conditions
-lat = 29.401325   # (-) West -> (+) East X axis
-long = -81.177222 # (-) South -> (+) North Y axis
+latitude = 29.401325   # (-) West -> (+) East X axis
+longitude = -81.177222 # (-) South -> (+) North Y axis
 R = 6378137 # Earth's Radius (meters)
 init_x_vel = -0.2 # m/s
 init_y_vel = 0.44 # m/s
-time = 0
 Xaccel_m = 0
 Yaccel_m = 0
 
@@ -44,39 +43,48 @@ max_row = sheet.max_row
 
 # Calculate Long/Lat when given X/Y Displacement
 # input: Y Displacement, Init_Long
-def findLong(long, Ydisp_m):
+def findLong(longitude, Ydisp_m):
     # Disp in radians
-    long_rad = Ydisp_m/(R * cos((pi * lat)/180))
+    long_rad = Ydisp_m/(R * cos((pi * latitude)/180))
     # Offset in Longitude 
-    long = long + long_rad * (180 / pi)
-    return long
+    longitude = longitude + long_rad * (180 / pi)
+    return longitude
 
 # Calculate Long/Lat when given X/Y Displacement
 # input: X Displacement, Init_Lat
-def findLat(lat, Xdisp_m):
+def findLat(latitude, Xdisp_m):
     # Disp in radians
     lat_rad = Xdisp_m / R
-    lat = lat + lat_rad * (180 / pi)
-    return lat
+    latitude = latitude + lat_rad * (180 / pi)
+    return latitude
 
-# for-in loop to read through the excel data sheet and make calculations
-# Read cell value -> convert cm to m -> calculate displacement from acceleration -> put into array
-for i in range(1, max_row):    
-    time+=0.1
 
-    # Convert X acceleration (cm/s^2 > m/s^2) to displacement and put in 1D array
-    # Displacement from acceleration formula
-    # displ = (Vi)(t) + 1/2(accel)(t^2)
-    Xdisp_m = (init_x_vel * time) + (0.5 * (sheet.cell(row=i+1, column=2).value * 0.01) * (time ** 2))
-    Xlat = findLat(lat, Xdisp_m)
+class MapViewApp(App):
+    def build(self):
+
+        # for-in loop to read through the excel data sheet and make calculations
+        # Read cell value -> convert cm to m -> calculate displacement from acceleration -> put into array
+        time=0
+        for i in range(1, max_row):    
+            
+
+            # Convert X acceleration (cm/s^2 > m/s^2) to displacement and put in 1D array
+            # Displacement from acceleration formula
+            # displ = (Vi)(t) + 1/2(accel)(t^2)
+            Xdisp_m = (init_x_vel * time) + (0.5 * (sheet.cell(row=i+1, column=2).value * 0.01) * (time ** 2))
+            Xlat = findLat(latitude, Xdisp_m)
+            
+            # Convert Y acceleration (cm/s^2 > m/s^2) to displacement and put in 1D array
+            Ydisp_m = (init_y_vel * time) + (0.5 * (sheet.cell(row=i+1, column=3).value * 0.01) * (time ** 2))
+            Ylong = findLong(longitude, Ydisp_m)
+            
+            time+=0.1
+            
+        mapview = MapView(zoom=11, lat=29.401325, lon=-81.177222, double_tap_zoom=True)
+        marker = MapMarker(lat=29.401325, lon=-81.177222, source='marker.png')
+        mapview.add_marker(marker)
+        
+        return mapview
+
+MapViewApp().run()
     
-    # Convert Y acceleration (cm/s^2 > m/s^2) to displacement and put in 1D array
-    Ydisp_m = (init_y_vel * time) + (0.5 * (sheet.cell(row=i+1, column=3).value * 0.01) * (time ** 2))
-    Ylong = findLong(long, Ydisp_m)
-
-x = np.linspace(0, 2 * np.pi, 200)
-y = np.sin(x)
-
-fig, ax = plt.subplots()
-ax.plot(x,y)
-plt.show()
