@@ -61,7 +61,8 @@ def findLat(latitude, Xdisp_m):
 
 class MapViewApp(App):
     def build(self):
-
+        mapview = MapView(zoom=11, lat=29.401325, lon=-81.177222)
+        
         # for-in loop to read through the excel data sheet and make calculations
         # Read cell value -> convert cm to m -> calculate displacement from acceleration -> put into array
         time=0
@@ -79,11 +80,9 @@ class MapViewApp(App):
             Ylong = findLong(longitude, Ydisp_m)
             
             time+=0.1
-            
-        mapview = MapView(zoom=11, lat=29.401325, lon=-81.177222, double_tap_zoom=True)
-        marker = MapMarker(lat=29.401325, lon=-81.177222, source='marker.png')
-        mapview.add_marker(marker)
-        
+            marker = MapMarker(lat=Xlat, lon=Ylong, source='marker.png')
+            mapview.add_marker(marker)
+                   
         return mapview
 
 MapViewApp().run()
