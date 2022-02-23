@@ -18,9 +18,11 @@ from array import *
 from math import *
 import random
 from turtle import pd
+from matplotlib.pyplot import xlabel
 import openpyxl
 from kivy.garden.mapview import MapView, MapMarker
 from kivy.app import App
+import csv
 
 ## Global Defs
 # Initial Conditions
@@ -58,32 +60,47 @@ def findLat(latitude, Xdisp_m):
     latitude = latitude + lat_rad * (180 / pi)
     return latitude
 
+# CSV file creation
+fields = ['latitude', 'longitude']
+filename = "latlong.csv"
+# writing to a csv file
+with open(filename, 'w') as csvfile:        
+    # creating a csv writer object
+    csvwriter = csv.writer(csvfile)
+    # writing the fields 
+    csvwriter.writerow(fields)
+    time=0 
+    for i in range(1, max_row):           
+        Xdisp_m = (init_x_vel * time) + (0.5 * (sheet.cell(row=i+1, column=2).value * 0.01) * (time ** 2))
+        Xlat = findLat(latitude, Xdisp_m)
+        Ydisp_m = (init_y_vel * time) + (0.5 * (sheet.cell(row=i+1, column=3).value * 0.01) * (time ** 2))
+        Ylong = findLong(longitude, Ydisp_m)
+        time+=0.1
+        row = [Xlat,Ylong]
+        # writing the data fields 
+        csvwriter.writerow(row)
+         
 
 class MapViewApp(App):
     def build(self):
         mapview = MapView(zoom=11, lat=29.401325, lon=-81.177222)
-        
         # for-in loop to read through the excel data sheet and make calculations
         # Read cell value -> convert cm to m -> calculate displacement from acceleration -> put into array
         time=0
-        for i in range(1, max_row):    
-            
-
+        for i in range(1, max_row):      
             # Convert X acceleration (cm/s^2 > m/s^2) to displacement and put in 1D array
             # Displacement from acceleration formula
             # displ = (Vi)(t) + 1/2(accel)(t^2)
             Xdisp_m = (init_x_vel * time) + (0.5 * (sheet.cell(row=i+1, column=2).value * 0.01) * (time ** 2))
             Xlat = findLat(latitude, Xdisp_m)
-            
+    
             # Convert Y acceleration (cm/s^2 > m/s^2) to displacement and put in 1D array
             Ydisp_m = (init_y_vel * time) + (0.5 * (sheet.cell(row=i+1, column=3).value * 0.01) * (time ** 2))
             Ylong = findLong(longitude, Ydisp_m)
-            
+    
             time+=0.1
             marker = MapMarker(lat=Xlat, lon=Ylong, source='marker.png')
             mapview.add_marker(marker)
-                   
         return mapview
-
 MapViewApp().run()
     
